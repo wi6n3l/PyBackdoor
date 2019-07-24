@@ -46,7 +46,7 @@ try:
 
     if status == "200":
         send("#1024")
-        send("ola")
+        send("200")
         condition = True
         while condition:
             bff = recive(1024)
@@ -59,8 +59,8 @@ try:
                     condition_msg = False
             print(msg)
 
-except Exception as e:
-    print(e)
+except Exception as e:##DEBUGING # except:
+    print(e)##DEBUGING COMMENT
     pass
 
 

